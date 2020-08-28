@@ -1,0 +1,2 @@
+ 809     #if ($obj.direction -eq "") { $skip = $true; $skipped++ }
+          if ($obj.direction -ne "internal") { $skip = $true; $skipped++ }
