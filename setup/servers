@@ -1,0 +1,370 @@
+Deploy TrustVault on Centos 6.7 Platformby admin — last modified Jun 01, 2016 06:23 AM — History
+
+Pre-Requisits
+CentOS 6.7 /8 Platform 
+yum -y install wget curlInstallation
+
+
+wget http://logiqrepo:w0nd3rfulw0rld@repo.logiq-asp.com/repo/centos/6/x86_64/logiq-install.sh live
+or
+wget http://logiqrepo:w0nd3rfulw0rld@repo.logiq-asp.com/repo/centos/6/x86_64/logiq-install.sh beta
+bash logiq-install.sh live
+su - logiqadmin
+At the “logiq>” command prompt, type “config” to enter the configuration utility
+config
+Press Enter
+System configuration - Wizard mode.
+Press enter to continue, or enter "no" to run in normal mode:
+
+Configuration - System Defaults
+
+1. Language - en_EN
+2. Admin Password - **************
+3. Admin Email Address -
+4. Enable Check IP - No
+5. Use HTTPS for Query API - Off
+6. Use HTTPS for Management & Intelligence API - Both
+7. Management & Intelligence API - 80
+8. Query API - 8000
+9. Query API 2 - not set
+10. HTTPS Management & Intelligence API Port - 443
+11. API Server - localhost
+12. CIDR incoming query range - ::/0,0.0.0.0/0
+13. Entry Expiration Time (seconds) - 220752000
+14. Query Log Expiration Time (days) - 2555
+15. Query Log Mode - Both
+16. Enable Query Access Key Verification - No
+17. Enable Heartbeat - Yes
+18. Exit Submenu
+
+
+Selected: Admin Password -- *************
+Enter New Value - Admin Password (Enter to cancel):Enter a new administrator password to be used to access the LogiQ engine.;
+ 
+Press [Enter for the following]
+Enter New Value - Enable Query Access Key Verification (Enter to cancel):
+Press [Enter]
+Wizard completed, press enter to continue, or enter "apply" to apply changes:
+select 5 + 6 enter On for HTTPS (Port 443) security
+enter 14 -> 5
+Type "n" for 
+Restrict SSH access now? (y/n):
+
+System Defaults
+Admin Password
+Use HTTPS for Query API - On
+Use HTTPS for Management & Intelligence API - On
+Confirm Changes? (y/n): y
+
+
+The entries will be saved and LogiQ re-started
+login to TrustVault with Your Browser (Flash will be required) 
+https://<ip address of the TrustVault server>/admin
+Enter the password setup in config
+Activate License
+Click on invalid License = > Import License and enter the path for the key file supplied to you from TrustSphere
+the License imports
+ 
+
+ Configuring a domain group and admin
+Access the TrustVault server via a browser from any system (with the credentials provided)
+ http://<ip address of the TrustVault server>/admin
+Username: admin
+Password: <as set above>
+Go to: Domain Administration  Domain groups
+Click on Add  Enter a domain group name Choose a LogiQ mode of “Integrity” Add a domain name by pressing the ‘Add’ buttonAdd a Domain Group Administrator account (using the same name as the domain group is a good idea) Set the “IP Partial Match level” to ‘Exact’ Leave all other fields as they are. Click on Update.
+ 
+ 
+Adding a Domain 
+
+  Create a domain group admin for the domain group
+A domain group admin should be assigned for the created domain group. To achieve this, you need to do the following:
+Go to:
+Systems Administration >System Settings >User Management
+
+ 
+ 
+Fill out the account creation box with the necessary information. 
+
+ 
+Make sure that the Permissions are set as Domain Group Administrator. And click update to save the changes.
+
+On the shell interface (ssh), it is required to initiate a service restart after the creation of the domain group admin. Below is the command that should be executed:
+ 
+service logiq restart LLC Install
+ 
+LLC is the connector responsible for processing and transforming extracted log files from the mail server in the format required for TrustVault.
+1. Login to the TrustVault server via SSH as root
+2. Install the LLC:
+yum install llc
+  Configuring the LLC
+ 
+Login to the TrustVault server via SSH
+ 
+Configure LLC to have run levels:
+ 
+chkconfig --add llc
+3. Create a user:
+adduser <user name>
+for example “user1” (no spaces)
+cd /home
+Change the directory ownership to user <user name>:
+chown <directory name>: <user name>
+ Change the directory permission of directory
+chmod 777 <directory name
+Define the Company name om the LLC configuration:
+vi /var/trustvault/log-connector/conf/llc_<company>.conf
+for example, if the company was “acme” then use “acme” as <company> name  llc_acme.conf
+--------------------------------------------------------------------------------------
+LogiQHost:localhost:8000
+LogDirectory: /var/trustvault/log-connector/input/input-<directory name>
+LogUpdatePeriod: 18
+CommonInputFolder: true
+DomainGroup: <domain name>
+ -------------------------------------------------------------------------------------
+Go the input directory and create a symbolic link:
+cd /var/trustvault/log-connector/input/
+ln -s /home/<directory name> input-<directory name>
+Start the LLC service instance for <company>:
+service llc start <company>
+use the company name defined
+Set a password for user <user name>
+ --- example of conf file --- 
+
+LogiQHost:localhost:8000
+#CustomerID: 1
+#CustomerKey: 1
+LogDirectory: /var/trustvault/log-connector/input/input-anz
+LogUpdatePeriod: 18
+
+## Optional configuration options
+#DomainList: /var/trustvault/log-connector/conf/selected_domain_list.dat
+DomainGroup: anz
+CommonInputFolder: true
+#UnseenInbound : true | false
+#UnseenOutBound : true | false
+#UnseenInternal : true | false
+
+## Optional reporting options
+LogLevel: INFO
+#DailyReport: true | false
+#DailyReportRecip: root
+
+## Optional update options
+#manualupdate: true | false
+ -- end of example --
+End
+
+
+TrustView Install and Configuration
+
+by Tom Butler — last modified May 31, 2016 05:37 AM — History
+
+Introduction
+The “TrustVault” product and service brings together the highly optimised, scalable and secure “LogiQ” engine with interfaces for administration, reporting and configuration that allow the “Messaging Intelligence” data to be utilised in a wide range of standalone and integrated solutions.Pre-Requisits
+CentOS 6.7/8
+LogiQ (TrustVault)Installation
+ Installing TrustView
+wget http://logiqrepo:w0nd3rfulw0rld@repo.logiq-asp.com/repo/centos/6/x86_64/trustview-install.sh live
+bash trustview-install.sh live
+or
+wget http://logiqrepo:w0nd3rfulw0rld@repo.logiq-asp.com/repo/centos/6/x86_64/trustview-install.sh beta
+ bash trustview-install.sh beta
+ service logiq-frontend restart
+TrustView will be installed on port 80.Login to TrustView
+ 
+TrustView can be accessed using the following URL in your browser.
+http://<ip address of the TrustView server>
+By default, when installed, the default Super Admin account details are:
+* Username: admin@trustsphere.com
+* Password: LogiQTrustView
+* Group: trustview
+you will be presented with a change password screen
+your current password is LogiQTrustView
+
+1.4 Group Administration
+TrustView requires a ‘group’ to be created to group data from TrustVault. The administrator can create this group and the users that go with it. Groups may only be managed by a ‘Super Admin’ account.
+1.4.1 Group creation
+To create a new group, simply select the ‘Users’ option from the left hand menu. If this option is not present, then you are not logged into TrustView as an Administrator. The following screen will appear:
+ 
+This shows the view when logging in as ‘admin@trustsphere.com’ in the TrustView group. If you logged in as a ‘Super Admin’ into another group, you will see a similar screen, but with your group displayed.
+To create a new group, press the ‘Add group’ button:
+ 
+Then, enter the details as follows:
+* Group: Enter the name of the group. Group names should be restricted to alpha-numeric characters only.
+* TrustVault hostname: Enter the full URL and port of the TrustVault server. This will be of the form: https://<ipaddress> of the TrustVault Server>. It is essential that the protocol (http/https) be correct and included and that the port be present if it is non-
+standard (i.e. standard means http=80, https=443). * Default is 80, 443 can be turned using the “su logiqadmin” command.
+* TrustVault username: Enter the username of the TrustVault user that will be used to query TrustView. This is the domain group admin account that you have defined on TrustVault.
+o Note that the permissions given to this user will be essentially passed on to all users in the TrustView group.
+* TrustVault password: Enter the password of the TrustVault user.
+ 
+NOTE: Once the group has been created, you must switch to it using the drop down list of groups before creating any users.
+ User Administration
+Users may be administered either by a ‘Super Admin’ account, or a ‘Group Admin’ account. A ‘Group Admin’ account may only administer users within their own group. Account defaults
+Before creating user accounts, it is important to set the defaults that will be used when creating user accounts. In order to do this, login as the administrator and select the ‘Users’ option from the menu. Then, edit the ‘default’ user.
+
+The settings for the default user will be used when creating users, so these need to be set to sensible defaults. After creating individual users, they are able to change their own settings.User creation
+To create a new user, simply select the ‘Users’ option from the left hand menu. If this option is not present, then you are not logged into TrustView as an Administrator. The following screen will appear:
+
+This screen shows a newly created group with only the default user present.
+To create a user, press the ‘Add user’ button:
+
+Complete as follows:
+* Username: Enter a username in email address format
+* Password: Enter a password, of more than five characters
+* User role: Choose a role for the user, which may be one of the following (note that group administrators cannot create ‘Super Admin’ accounts)
+o User – a standard TrustView user
+o Group Admin – a user than may administer the current group
+o Super Admin – a user than may administer all groups
+ 
+END
+ 
+How to install CSADMIN
+
+by Tom Butler — last modified May 26, 2016 08:55 PM — History
+
+Installing ClientServices application
+To setup CS API install the ClientServices application
+Install from the repo (live for customer installations) # yum -y install csadmin --enablerepo=logiq-main-dev or --enablerepo=logiq-main-liveIf installng on a server with LogiQ previously installed # service logiq_frontend restartIf installing on a server witout LogiQ # service csapi restartOpen a web browser 
+goto url:  https://<server>/csadmin
+Login as admin@default, password: PleaseChangeMe
+
+Setting up Groups and Users
+
+by Tom Butler — last modified May 26, 2016 08:58 PM — History
+
+Setting Up CS API groups and users
+Group
+
+Groups define the TrustVault connection for all users in the group
+In group administration, Add a group called <whatever>
+NOTE : this MUST match the TrustVault domain group ! 
+Set the TrustVault settings to point to the required TrustVault server 
+Use the username and password of an MI API user with access to the required domain group
+Use the Test button to verify that the TrustVault connection is valid
+Licensing (Temporary - will be moved to LicensingPortal
+ In administer licences, modify the licensing for the required applications (e.g set insights to 10 users)
+Users
+
+In user admin, edit the default user, and add the new group to the list of other groups
+This will allow the default user to administer this group
+Logout/Login
+ This picks up the new group access
+On the home page,
+
+ Select the new group in hamburger menu
+This switches administration context to the to the new group
+Add users
+
+In user admin, add a new user.
+Set the user type to group administrator
+Tick the Administartion and other required applications
+NOTE: A user cannot be created if there is not a free licence available for any of the checked applications
+Logout.If the required application does not have user administration options (Mobile, Widget etc)Log back into ClientServices as the new group administartor Create the required new users or new keysIf the required application has user administration options (TeamInsights etc)Log back into the application as the new group administartor Create the required new usersMonitoring CS API
+There are various logs that can be monitored
+
+
+nginx error log for csapi
+# tail -F /var/trustvault/csapi/logs/nginx_error.log
+
+audit log for csapi (Better to use audit report in ClientServices)
+# tail -F  /var/trustvault/csapi/logs/audit-trustsphere.log
+debug log for csapi (will be removed at some point)
+# tail -F /tmp/sda
+
+
+
+
+Developing with CSAPI
+
+by Tom Butler — last modified Jun 01, 2016 04:37 PM — History
+
+Introduction
+Client services is an intermediate layer between third party clients and TrustSphere services
+ 
+ 
+
+TeamInsights, ClientServices, Widget and TrustView are AngularJS web applications using a common base
+Client services is an Nginx web service written in PERL
+
+Client services modules provide customizable API’s to match individual client requirements for data from TrustVault or other TrustSphere services
+ Calling Client services API
+•GET: https:// <CS API server>/api/cs/v1/<cs api>?options={..options..}&query={..query..}
+
+•POST: https:// <CS API server>/ api/cs/v1 <cs api>
+With a request body of: { "options":{..options..}, "query":{..query..} }
+First request must be an authorization request, subsequent requests include a temporary access token
+
+•https:// <CS API server>/api/cs/v1/auth
+POST headers
+Authorization: User, app=<application>,id=<userid>,secret=<password>
+
+Authorization response contains user information for the application in a JSON object
+{
+ “id”:”<userid>,
+ ”ts”:<access token timeout>,
+ ”token”:”<temporary access token>”,
+ “profile”:[“type”:<user type>,
+              ”group”:”<user primary group>”,
+              ”groups”:[”<user secondary group>”,”<user secondary group>”,…],
+              “permissions”:{ … user permissions …},
+              “preferences”:{ … user preferences …},
+              ]
+Modules can then be called using the temporary access token and timestamp
+
+https:// <CS API server>/api/cs/v1/freemailers
+POST headers
+Authorization: Token, app=<application>,id=<userid>,token=<access token>,ts=<timestamp>
+
+Module response contains returned information for the request in a JSON object
+{“data”:[0:< ..first data object..>,1:< .. Second data object.. >]}
+The user permissions are automatically taken into account by client services when calling any moduleUsing the Development tools plugin to access and verify the APIPre-requisits
+Google Chrome and the Development tools plugin
+an explanation and usage of the tools can be found at 
+https://developers.google.com/web/tools/chrome-devtools/Starting developer tools
+ 
+
+ Or using shortcuts
+Windows [F12]
+Mac [Cmd] +[Opt] + [i]
+Open TeamInsights in Chrome
+https://insights.mitrustview.com/insights/
+Login and start the Dev tools
+Locate the Auth and Click the Header Tab
+ 
+ 
+ The 200 indicates that authentication was successful and the Authorization displays the User ID <username> and generated <key> (hidden in this example)cURL the Authentication
+ 
+Select the Auth and cURL as Bash
+
+ 
+Open your telnet window in Linux or Mac and Past the Clip
+ 
+ 
+ 
+ https://cs.mitrustview.com/insights/
+Username : insights@company.com
+Password  : v92pKBxwa4
+ 
+ 
+
+demo@trustsphere.com
+an0th3rd3m0
+company
+ 
+ 
+on the server
+yum -y install curl
+in google chrome
+add development tools
+Have a look around then “F12” to start your developer’s tools
+ 
+Log out then in again and you will see the following screen – select Auth
+You will see the post cmd as indicated in the DOC
+Right Click the Auth – and copy as cURL past this a telnet window Mac or Nix and you will authenticate
+Note the Key
+ 
+As the doc says you can now run other cmds in this session
+Click on an Icon in the Insights Window – ie Team Snapshot
+Locate the command in the dev panel and curl it.
+ 
